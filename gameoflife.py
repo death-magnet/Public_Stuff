@@ -43,12 +43,22 @@ BACKGROUND = COLOR_BLACK
 # Game Setup
 FPS = 10
 CLOCK = pg.time.Clock()
+
+# get current screen resolution
 INFO = pg.display.Info()
+
+# set window resolution to be a bit smaller than full screen 
+# This will make it 1600x900 on a 1920x1080 screen for example
 SCREEN_WIDTH = int(INFO.current_w * 0.833333)
 SCREEN_HEIGHT = int(INFO.current_h * 0.833333)
+
+# set screen dimensions
 SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# window title
 TITLE = "Conway's Game of Life in Python"
 
+#set up the game board
 TILE = int(SCREEN_HEIGHT * 0.01)
 W, H = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
 
@@ -60,11 +70,12 @@ pg.display.set_caption(TITLE)
 def main():
     looping = True
     paused = False
-    # The main game loop
-
+    
+    # initialize grid randomly
     next_gen = [[0 for i in range(W)] for j in range(H)]
     current_gen = [[randint(0, 1) for i in range(W)] for j in range(H)]
 
+    # see if each cell in grid should be alive or dead
     def check_cell(current_gen, x, y):
         count = 0
         for j in range(y - 1, y + 2):
@@ -83,7 +94,9 @@ def main():
                 return 1
             return 0
 
+    # The main game loop
     while looping:
+
         # Get inputs
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -95,15 +108,17 @@ def main():
                     paused = not paused
 
         if not paused:
+            
             CLOCK.tick(FPS)
-
             SCREEN.fill(BACKGROUND)
 
+            # draw grid of lines
             [pg.draw.line(SCREEN, COLOR_DIMGRAY, (x, 0), (x, SCREEN_HEIGHT))
              for x in range(0, SCREEN_WIDTH, TILE)]
             [pg.draw.line(SCREEN, COLOR_DIMGRAY, (0, y), (SCREEN_WIDTH, y))
              for y in range(0, SCREEN_HEIGHT, TILE)]
 
+            # draw individual cells according to the rules
             for x in range(1, W - 1):
                 for y in range(1, H - 1):
                     if current_gen[y][x]:
@@ -112,6 +127,7 @@ def main():
                     next_gen[y][x] = check_cell(current_gen, x, y)
             current_gen = deepcopy(next_gen)
 
+            # update display
             pg.display.flip()
 
 
