@@ -26,7 +26,6 @@
 # SOFTWARE.
 
 import pygame as pg
-import time
 from random import randint
 from copy import deepcopy
 
