@@ -25,6 +25,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# Based in part on a Game of Life example by https://github.com/StanislavPetrovV/
+
 import pygame as pg
 from random import randint
 from copy import deepcopy
