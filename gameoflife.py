@@ -27,6 +27,7 @@
 
 # Based in part on a Game of Life example by https://github.com/StanislavPetrovV/
 
+from ast import Global
 import pygame as pg
 from random import randint
 from copy import deepcopy
@@ -44,33 +45,64 @@ BACKGROUND = COLOR_BLACK
 FPS = 10
 CLOCK = pg.time.Clock()
 
-# get current screen resolution
-INFO = pg.display.Info()
-
-# set window resolution to be a bit smaller than full screen
-# This will make it 1600x900 on a 1920x1080 screen for example
-SCREEN_WIDTH = int(INFO.current_w * 0.833333)
-SCREEN_HEIGHT = int(INFO.current_h * 0.833333)
-
-# set screen dimensions
-SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
 # window title
 TITLE = "Conway's Game of Life in Python"
 
-# set up the game board
+pg.display.set_caption(TITLE)
+
+# initialize screen to default values
+INFO = pg.display.Info()
+
+SCREEN_WIDTH = int(INFO.current_w * 0.833333)
+SCREEN_HEIGHT = int(INFO.current_h * 0.833333)
+
+SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
 TILE = int(SCREEN_HEIGHT * 0.01)
 W, H = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
 
-pg.display.set_caption(TITLE)
 
 # The main function that controls the game
-
-
 def main():
+    fullscreen = False
+
     looping = True
     paused = False
+    def screen_setup():
+        # get current screen resolution
+        global SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN, TILE, W, H, INFO
 
+        INFO = pg.display.Info()
+
+        
+
+        # set screen dimensions
+        if fullscreen == True:
+            # full screen at current resolution
+            SCREEN_WIDTH = int(INFO.current_w)
+            SCREEN_HEIGHT = int(INFO.current_h)
+            SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pg.FULLSCREEN)
+        else:
+            # set window resolution to be a bit smaller than full screen
+            # This will make it 1600x900 on a 1920x1080 screen for example
+            SCREEN_WIDTH = int(INFO.current_w * 0.833333)
+            SCREEN_HEIGHT = int(INFO.current_h * 0.833333)
+            SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+
+        # set up the game board
+        TILE = int(SCREEN_HEIGHT * 0.01)
+        if TILE < 1:
+            TILE = 1
+
+        W, H = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
+
+
+
+
+
+
+    screen_setup()
     # initialize grid randomly
     next_gen = [[0 for i in range(W)] for j in range(H)]
     current_gen = [[randint(0, 1) for i in range(W)] for j in range(H)]
@@ -116,6 +148,12 @@ def main():
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     paused = not paused
+                if event.key == pg.K_F11:
+                    # do full screen stuff
+                    paused = True
+                    fullscreen = not fullscreen
+                    screen_setup()
+                    paused = False
 
         if not paused:
 
