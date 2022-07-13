@@ -94,14 +94,14 @@ def main():
         if TILE < 1:
             TILE = 1
 
-        SCREEN_WIDTH = SCREEN_WIDTH * 1.1
-        SCREEN_HEIGHT = SCREEN_HEIGHT * 1.1
+        SCREEN_WIDTH = SCREEN_WIDTH * 1.2
+        SCREEN_HEIGHT = SCREEN_HEIGHT * 1.2
 
         SCREEN_WIDTH = int(SCREEN_WIDTH)
         SCREEN_HEIGHT = int(SCREEN_HEIGHT)
 
         W, H = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
-        
+
         [pg.draw.line(SCREEN, COLOR_DIMGRAY, (x, 0), (x, SCREEN_HEIGHT))
              for x in range(0, SCREEN_WIDTH, TILE)]
         [pg.draw.line(SCREEN, COLOR_DIMGRAY, (0, y), (SCREEN_WIDTH, y))
@@ -164,6 +164,9 @@ def main():
                     fullscreen = not fullscreen
                     screen_setup()
                     paused = False
+                if event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    exit()
 
         if not paused:
 
