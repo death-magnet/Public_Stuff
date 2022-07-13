@@ -30,6 +30,9 @@
 import pygame as pg
 from random import randint
 from copy import deepcopy
+import itertools, sys
+spinner = itertools.cycle([ '/', '-', '\\', '|'])
+
 
 
 pg.init()
@@ -63,10 +66,12 @@ W, H = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
 
 # The main function that controls the game
 def main():
+    global current_gen
     fullscreen = False
 
     looping = True
     paused = False
+    print("simulating")
     def screen_setup():
         # get current screen resolution
         global SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN, TILE, W, H, INFO
@@ -81,12 +86,14 @@ def main():
             SCREEN_WIDTH = int(INFO.current_w)
             SCREEN_HEIGHT = int(INFO.current_h)
             SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pg.FULLSCREEN)
+            pg.mouse.set_visible(False)
         else:
             # set window resolution to be a bit smaller than full screen
             # This will make it 1600x900 on a 1920x1080 screen for example
             SCREEN_WIDTH = int(INFO.current_w * 0.833333)
             SCREEN_HEIGHT = int(INFO.current_h * 0.833333)
             SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+            pg.mouse.set_visible(True)
 
 
         # set up the game board
@@ -146,6 +153,7 @@ def main():
                 return 1
             return 0
 
+    
     # The main game loop
     while looping:
 
@@ -167,29 +175,39 @@ def main():
                 if event.key == pg.K_ESCAPE:
                     pg.quit()
                     exit()
+                if event.key == pg.K_RETURN:
+                    next_gen = [[0 for i in range(W)] for j in range(H)]
+                    current_gen = [[randint(0, 1) for i in range(W)] for j in range(H)]
+                    
 
         if not paused:
 
-            CLOCK.tick(FPS)
-            SCREEN.fill(BACKGROUND)
+            def draw_game():
+                global current_gen
+                CLOCK.tick(FPS)
+                SCREEN.fill(BACKGROUND)
 
-            # draw grid of lines
-            [pg.draw.line(SCREEN, COLOR_DIMGRAY, (x, 0), (x, SCREEN_HEIGHT))
-             for x in range(0, SCREEN_WIDTH, TILE)]
-            [pg.draw.line(SCREEN, COLOR_DIMGRAY, (0, y), (SCREEN_WIDTH, y))
-             for y in range(0, SCREEN_HEIGHT, TILE)]
+                # draw grid of lines
+                [pg.draw.line(SCREEN, COLOR_DIMGRAY, (x, 0), (x, SCREEN_HEIGHT))
+                for x in range(0, SCREEN_WIDTH, TILE)]
+                [pg.draw.line(SCREEN, COLOR_DIMGRAY, (0, y), (SCREEN_WIDTH, y))
+                for y in range(0, SCREEN_HEIGHT, TILE)]
 
-            # draw individual cells according to the rules
-            for x in range(1, W - 1):
-                for y in range(1, H - 1):
-                    if current_gen[y][x]:
-                        pg.draw.rect(SCREEN, COLOR_GREEN,
-                                     (x * TILE + 2, y * TILE + 2, TILE - 2, TILE - 2))
-                    next_gen[y][x] = check_cell(current_gen, x, y)
-            current_gen = deepcopy(next_gen)
+                # draw individual cells according to the rules
+                for x in range(1, W - 1):
+                    for y in range(1, H - 1):
+                        if current_gen[y][x]:
+                            pg.draw.rect(SCREEN, COLOR_GREEN,
+                                        (x * TILE + 2, y * TILE + 2, TILE - 2, TILE - 2))
+                        next_gen[y][x] = check_cell(current_gen, x, y)
+                current_gen = deepcopy(next_gen)
 
-            # update display
-            pg.display.flip()
+                # update display
+                pg.display.flip()
+            draw_game()
+            sys.stdout.write(next(spinner))   # write the next character
+            sys.stdout.flush()                # flush stdout buffer (actual character display)
+            sys.stdout.write('\b')            # erase the last written char
 
 
 if __name__ == "__main__":
