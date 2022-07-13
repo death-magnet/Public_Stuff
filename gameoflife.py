@@ -37,7 +37,7 @@ pg.init()
 # Colors
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
-COLOR_DIMGRAY = (80, 80, 80)
+COLOR_DIMGRAY = (20, 20, 20)
 COLOR_GREEN = (34, 125, 50)
 BACKGROUND = COLOR_BLACK
 # Game Setup
@@ -47,7 +47,7 @@ CLOCK = pg.time.Clock()
 # get current screen resolution
 INFO = pg.display.Info()
 
-# set window resolution to be a bit smaller than full screen 
+# set window resolution to be a bit smaller than full screen
 # This will make it 1600x900 on a 1920x1080 screen for example
 SCREEN_WIDTH = int(INFO.current_w * 0.833333)
 SCREEN_HEIGHT = int(INFO.current_h * 0.833333)
@@ -58,7 +58,7 @@ SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 # window title
 TITLE = "Conway's Game of Life in Python"
 
-#set up the game board
+# set up the game board
 TILE = int(SCREEN_HEIGHT * 0.01)
 W, H = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
 
@@ -70,12 +70,22 @@ pg.display.set_caption(TITLE)
 def main():
     looping = True
     paused = False
-    
+
     # initialize grid randomly
     next_gen = [[0 for i in range(W)] for j in range(H)]
     current_gen = [[randint(0, 1) for i in range(W)] for j in range(H)]
 
+    # seed method examples below, uncomment to test
+
+    # current_gen = [[1 if i == W // 2 or j == H // 2 else 0 for i in range(W)] for j in range(H)]
+    # current_gen = [[randint(0, 1) for i in range(W)] for j in range(H)]
+    # current_gen = [[1 if not i % 9 else 0 for i in range(W)] for j in range(H)]
+    # current_gen = [[1 if not (2 * i + j) % 4 else 0 for i in range(W)] for j in range(H)]
+    # current_gen = [[1 if not (i * j) % 22 else 0 for i in range(W)] for j in range(H)]
+    # current_gen = [[1 if not i % 7 else randint(0, 1) for i in range(W)] for j in range(H)]
+
     # see if each cell in grid should be alive or dead
+
     def check_cell(current_gen, x, y):
         count = 0
         for j in range(y - 1, y + 2):
@@ -108,7 +118,7 @@ def main():
                     paused = not paused
 
         if not paused:
-            
+
             CLOCK.tick(FPS)
             SCREEN.fill(BACKGROUND)
 
