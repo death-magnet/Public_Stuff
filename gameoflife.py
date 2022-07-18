@@ -31,6 +31,7 @@ import pygame as pg
 from random import randint
 from copy import deepcopy
 import itertools, sys
+from numba import njit
 spinner = itertools.cycle([ '/', '-', '\\', '|'])
 
 
@@ -55,8 +56,8 @@ pg.display.set_caption(TITLE)
 # initialize screen to default values
 INFO = pg.display.Info()
 
-SCREEN_WIDTH = int(INFO.current_w * 0.933333)
-SCREEN_HEIGHT = int(INFO.current_h * 0.933333)
+SCREEN_WIDTH = int(INFO.current_w * 0.833333)
+SCREEN_HEIGHT = int(INFO.current_h * 0.833333)
 
 SCREEN = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -66,9 +67,10 @@ W, H = SCREEN_WIDTH // TILE, SCREEN_HEIGHT // TILE
 
 seednum = 0
 value = str(0)
+paused = False
 # The main function that controls the game
 def main():
-    global current_gen, seednum, value
+    global current_gen, seednum, value, paused
     fullscreen = False
 
     looping = True
@@ -208,39 +210,41 @@ def main():
     
     # The main game loop
     while looping:
+        
         stats = "Seed number: " + str(seednum)
-        newtitle = TITLE + " - " + stats
+        newtitle = TITLE + " - " + stats + " - FPS: " + str(int(CLOCK.get_fps()))
         pg.display.set_caption(newtitle)
         # Get inputs
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-                exit()
-
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_SPACE:
-                    paused = not paused
-                if event.key == pg.K_F11:
-                    # do full screen stuff
-                    paused = True
-                    fullscreen = not fullscreen
-                    screen_setup()
-                    paused = False
-                if event.key == pg.K_ESCAPE:
+        def check_events():
+            global paused, next_gen, current_gen, seednum, W, H
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
                     pg.quit()
                     exit()
-                if event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER:
-                    value = str(0)
-                    game_intro()
-                    # new seed
-                    next_gen = [[0 for i in range(W)] for j in range(H)]
-                    current_gen = [[1 if not ((seednum % (i + 1)) * (seednum % (j + 1))) else 0 for i in range(W)] for j in range(H)]
 
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        paused = not paused
+                    if event.key == pg.K_F11:
+                        # do full screen stuff
+                        paused = True
+                        fullscreen = not fullscreen
+                        screen_setup()
+                        paused = False
+                    if event.key == pg.K_ESCAPE:
+                        pg.quit()
+                        exit()
+                    if event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER:
+                        value = str(0)
+                        game_intro()
+                        # new seed
+                        next_gen = [[0 for i in range(W)] for j in range(H)]
+                        current_gen = [[1 if not ((seednum % (i + 1)) * (seednum % (j + 1))) else 0 for i in range(W)] for j in range(H)]
+        check_events()
         if not paused:
 
             def draw_game():
                 global current_gen
-                CLOCK.tick(FPS)
                 SCREEN.fill(BACKGROUND)
 
                 # draw grid of lines
@@ -260,11 +264,14 @@ def main():
 
                 # update display
                 pg.display.flip()
+                CLOCK.tick(FPS)
             draw_game()
             sys.stdout.write(next(spinner))   # write the next character
             sys.stdout.flush()                # flush stdout buffer (actual character display)
             sys.stdout.write('\b')            # erase the last written char
+            check_events()
 
-
+        else:
+            check_events()
 if __name__ == "__main__":
     main()
