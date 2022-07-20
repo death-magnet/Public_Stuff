@@ -54,6 +54,9 @@ INFO = pg.display.Info()
 SCREEN_WIDTH = int(INFO.current_w)
 SCREEN_HEIGHT = int(INFO.current_h)
 
+font = pg.font.SysFont(None, 25)
+
+
 class Game():
 
     def __init__(self):
@@ -99,15 +102,12 @@ class Game():
         intro = True
         self.SCREEN.fill(COLOR_BLACK)
         text = "Please enter a number or press return for a random one"
-        font = pg.font.SysFont(None, 25)
         text1 = font.render(text, True, COLOR_WHITE)
         self.SCREEN.blit(text1, (self.SCREEN_WIDTH // 3, self.SCREEN_HEIGHT // 4))
         pg.display.flip()
         self.value = str(0)
         self.seednum = randint(5, 9999999999999999) # randint(1,9999999999999999)
         self.next_gen = [[0 for i in range(self.W)] for j in range(self.H)] # initialize to zeroes
-
-        print(self.seednum)
 
         while intro:
             
@@ -144,7 +144,6 @@ class Game():
                         if int(self.value) >= 5:
                             self.seednum = int(self.value)
                             self.value = str(0)
-                            print(self.seednum)
                         elif int(self.value) > 0 and int(self.value) < 5:
                             self.seednum = int(self.value) + 5
                             self.value = str(0)
@@ -152,7 +151,6 @@ class Game():
                             self.value = str(0)
                         intro=False
 
-            # print(value)
             if int(self.value) is not 0:
                 text2 = font.render(self.value[1:], True, COLOR_WHITE)
                 self.SCREEN.blit(text2, (self.W_res // 3, self.H_res // 3))
@@ -197,18 +195,23 @@ class Game():
                     self.next_gen[y][x] = self.check_cell(self.current_gen, x, y)
 
             self.current_gen = deepcopy(self.next_gen) # update display
+
+            debug("Seed: " + str(self.seednum) + " by death-magnet", self.W_res -360, self.H_res - 20)
             pg.display.flip()
 
+def debug(info, x=10, y=10):
+    display_surface = pg.display.get_surface()
+    debug_surf = font.render(str(info), True, 'white')
+    debug_rect = debug_surf.get_rect(topleft=(x, y))
+    pg.draw.rect(display_surface, 'black', debug_rect)
+    display_surface.blit(debug_surf, debug_rect)
+    
 def main():
     game = Game()
     looping = True
     game.screen_setup()
     game.intro()
-
     while looping:
-        stats = "Seed number: " + str(game.seednum)
-        newtitle = TITLE + " - " + stats + " - FPS: " + str(int(CLOCK.get_fps()))
-        pg.display.set_caption(newtitle)
 
         # Get inputs
         for event in pg.event.get():
@@ -218,7 +221,6 @@ def main():
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
-                    print("space detected")
                     game.paused = not game.paused
                 if event.key == pg.K_F11:
                     game.fullscreen = not game.fullscreen
