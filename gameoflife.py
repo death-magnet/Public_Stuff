@@ -196,7 +196,7 @@ class Game():
 
             self.current_gen = deepcopy(self.next_gen) # update display
 
-            debug("Seed: " + str(self.seednum) + " by death-magnet", self.random, self.H_res - 20)
+            debug("Seed: " + str(f'{self.seednum:0>16}')+ " by death-magnet", self.random, self.H_res - 20)
             pg.display.flip()
 
 def debug(info, x=10, y=10):
