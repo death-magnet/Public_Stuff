@@ -108,7 +108,7 @@ class Game():
         self.value = str(0)
         self.seednum = randint(5, 9999999999999999) # randint(1,9999999999999999)
         self.next_gen = [[0 for i in range(self.W)] for j in range(self.H)] # initialize to zeroes
-
+        self.random = randint(0, self.W_res - 360) # random location for info box each run
         while intro:
             
             for event in pg.event.get():
@@ -196,7 +196,7 @@ class Game():
 
             self.current_gen = deepcopy(self.next_gen) # update display
 
-            debug("Seed: " + str(self.seednum) + " by death-magnet", self.W_res -360, self.H_res - 20)
+            debug("Seed: " + str(self.seednum) + " by death-magnet", self.random, self.H_res - 20)
             pg.display.flip()
 
 def debug(info, x=10, y=10):
