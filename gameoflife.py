@@ -92,9 +92,9 @@ class Game():
         
         self.tile = int(self.W_res * self.tile_num)
 
-        self.W = self.W_res // self.tile
-        self.H = self.H_res // self.tile
-
+        self.W = (self.W_res // self.tile) + 1
+        self.H = (self.H_res // self.tile) + 2
+        print(self.W, self.H)
         if self.tile < 1:
             self.tile = 1
 
@@ -178,7 +178,12 @@ class Game():
             if count == 3:
                 return 1
             return 0
-   
+
+    def debug(self, info, x=10, y=10):
+        debug_surf = font.render(str(info), True, COLOR_WHITE)
+        debug_rect = debug_surf.get_rect(topleft=(x, y))
+        self.SCREEN.blit(debug_surf, debug_rect)
+
     def update(self):
         if not self.paused:
             self.SCREEN.fill(BACKGROUND)
@@ -187,8 +192,8 @@ class Game():
 
             [pg.draw.line(self.SCREEN, COLOR_DIMGRAY, (0, y), (self.W_res, y)) for y in range(0, self.H_res, self.tile)]
 
-            for x in range(1, self.W - 1):
-                for y in range(1, self.H - 1):
+            for x in range(0, self.W - 1):
+                for y in range(0, self.H - 1):
                     if self.current_gen[y][x]:
                         pg.draw.rect(self.SCREEN, COLOR_GREEN,
                                     (x * self.tile + 2, y * self.tile + 2, self.tile - 2, self.tile - 2))
@@ -196,16 +201,9 @@ class Game():
 
             self.current_gen = deepcopy(self.next_gen) # update display
 
-            debug("Seed: " + str(f'{self.seednum:0>16}')+ " by death-magnet", self.random, self.H_res - 20)
+            self.debug("Seed: " + str(f'{self.seednum:0>16}')+ " by death-magnet", self.random, self.H_res - 20)
             pg.display.flip()
 
-def debug(info, x=10, y=10):
-    display_surface = pg.display.get_surface()
-    debug_surf = font.render(str(info), True, 'white')
-    debug_rect = debug_surf.get_rect(topleft=(x, y))
-    pg.draw.rect(display_surface, 'black', debug_rect)
-    display_surface.blit(debug_surf, debug_rect)
-    
 def main():
     game = Game()
     looping = True
@@ -236,6 +234,7 @@ def main():
             game.update()
 
         CLOCK.tick(FPS)        
-        
+
+
 if __name__ == "__main__":
     main()
