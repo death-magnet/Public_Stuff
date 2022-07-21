@@ -3,7 +3,7 @@
 # by death-magnet
 # MIT License
 
-# Copyright(c) 2022 death-magnet
+# Copyright © 2022 death-magnet
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files(the "Software"), to deal
@@ -38,6 +38,7 @@ COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
 COLOR_DIMGRAY = (20, 20, 20)
 COLOR_GREEN = (34, 125, 50)
+COLOR_RPURPLE = (125, 34, 109)
 BACKGROUND = COLOR_BLACK
 # Game Setup
 FPS = 10
@@ -68,6 +69,7 @@ class Game():
         self.tile_num = 0.0042
         self.tile = int(self.WINDOW_WIDTH * self.tile_num)
         self.seednum = 0
+        self.lastseed = None
         self.value = str(0)
         self.current_gen=[]
         self.paused = False
@@ -92,18 +94,20 @@ class Game():
         
         self.tile = int(self.W_res * self.tile_num)
 
-        self.W = (self.W_res // self.tile) + 1
+        self.W = (self.W_res // self.tile) + 2
         self.H = (self.H_res // self.tile) + 2
-        print(self.W, self.H)
         if self.tile < 1:
             self.tile = 1
 
     def intro(self):
         intro = True
-        self.SCREEN.fill(COLOR_BLACK)
-        text = "Please enter a number or press return for a random one"
-        text1 = font.render(text, True, COLOR_WHITE)
-        self.SCREEN.blit(text1, (self.SCREEN_WIDTH // 3, self.SCREEN_HEIGHT // 4))
+        self.SCREEN.fill(BACKGROUND)
+        if self.lastseed == None:
+            text = "Please enter a number or press return for a random one"
+        else:
+            text = "Please enter a number, press return for a random one, or press F3 to re-run the last seed."
+        text1 = font.render(text, True, COLOR_GREEN)
+        self.SCREEN.blit(text1, (self.SCREEN_WIDTH // 5, self.SCREEN_HEIGHT // 4))
         pg.display.flip()
         self.value = str(0)
         self.seednum = randint(5, 9999999999999999) # randint(1,9999999999999999)
@@ -140,6 +144,10 @@ class Game():
                         self.value = self.value + str(8)
                     if event.key == pg.K_9 or event.key==pg.K_KP9:
                         self.value = self.value + str(9)
+                    if event.key == pg.K_F3:
+                        self.seednum = self.lastseed
+                        self.value = str(self.lastseed)
+                        intro = False
                     if event.key==pg.K_KP_ENTER or event.key==pg.K_RETURN:
                         if int(self.value) >= 5:
                             self.seednum = int(self.value)
@@ -180,8 +188,9 @@ class Game():
             return 0
 
     def debug(self, info, x=10, y=10):
-        debug_surf = font.render(str(info), True, COLOR_WHITE)
+        debug_surf = font.render(str(info), True, COLOR_RPURPLE)
         debug_rect = debug_surf.get_rect(topleft=(x, y))
+        pg.draw.rect(self.SCREEN, COLOR_BLACK, debug_rect)
         self.SCREEN.blit(debug_surf, debug_rect)
 
     def update(self):
@@ -201,7 +210,7 @@ class Game():
 
             self.current_gen = deepcopy(self.next_gen) # update display
 
-            self.debug("Seed: " + str(f'{self.seednum:0>16}')+ " by death-magnet", self.random, self.H_res - 20)
+            self.debug("© 2022 death-magnet - Seed: " + str(f'{self.seednum:0>16}'), self.random, self.H_res - 16)
             pg.display.flip()
 
 def main():
@@ -229,6 +238,7 @@ def main():
                     exit()
                 if event.key == pg.K_RETURN or event.key == pg.K_KP_ENTER:
                     game.value = str(0)
+                    game.lastseed = game.seednum
                     game.intro()
         if not game.paused:
             game.update()
